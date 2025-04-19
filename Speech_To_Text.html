@@ -3,10 +3,15 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Speech Practice with Scoring</title>
+  <title>Speech Practice: Online/Offline Toggle</title>
 </head>
 <body>
-  <h1>Speech Practice with Scoring</h1>
+  <h1>Speech Practice with Online/Offline Modes</h1>
+  
+  <label>
+    <input type="checkbox" id="mode-toggle" checked> Online Mode
+  </label>
+
   <p>Select a phrase to practice:</p>
   <form id="phrase-form">
     <input type="radio" name="phrase" value="The quick brown fox jumps over the lazy dog." checked>
@@ -20,21 +25,28 @@
   <button id="start-btn">Start Listening</button>
   <button id="stop-btn" disabled>Stop Listening</button>
   <button id="get-score-btn" disabled>Get Score</button>
+
   <p><strong>Your Speech-to-Text Output:</strong></p>
   <p id="output"></p>
   <p><strong>Your Score:</strong></p>
   <p id="score"></p>
 
   <script>
-  function removeCharacter(str, charToRemove) {
-    return str.split(charToRemove).join('');
-      return str.replace(regex, '');
-  }
+    // Mode toggle
+    const modeToggle = document.getElementById("mode-toggle");
+    let isOnlineMode = modeToggle.checked;
+
+    // Update mode on toggle
+    modeToggle.addEventListener("change", () => {
+      isOnlineMode = modeToggle.checked;
+      alert(isOnlineMode ? "Switched to Online Mode" : "Switched to Offline Mode");
+    });
+
     // Check for browser compatibility
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
     if (!SpeechRecognition) {
-      alert("Sorry, your browser does not support Speech-to-Text.");
+      alert("Sorry, your browser does not support Speech-to-Text for Online Mode.");
     } else {
       const recognition = new SpeechRecognition();
       recognition.lang = 'en-US';
@@ -47,22 +59,28 @@
       const scoreDisplay = document.getElementById("score");
 
       let transcript = '';
-      let fullTranscript = '';
 
       // Start recognition
       startButton.addEventListener("click", () => {
-        recognition.start();
-        startButton.disabled = true;
-        stopButton.disabled = false;
-        getScoreButton.disabled = true;
-        // Reset transcript for a fresh attempt
-        transcript = ''; 
-        fullTranscript = '';
+        if (isOnlineMode) {
+          recognition.start();
+          transcript = ''; // Reset transcript for a fresh attempt
+          startButton.disabled = true;
+          stopButton.disabled = false;
+          getScoreButton.disabled = true;
+        } else {
+          // Offline mode simulation (replace with offline STT library for real use)
+          transcript = prompt("Offline Mode: Please type what you said.");
+          output.textContent = transcript;
+          getScoreButton.disabled = false;
+        }
       });
 
       // Stop recognition
       stopButton.addEventListener("click", () => {
-        recognition.stop();
+        if (isOnlineMode) {
+          recognition.stop();
+        }
         startButton.disabled = false;
         stopButton.disabled = true;
         getScoreButton.disabled = false;
@@ -71,9 +89,7 @@
       // On recognition result
       recognition.onresult = (event) => {
         transcript = event.results[event.results.length - 1][0].transcript;
-        fullTranscript = fullTranscript + ' ' + transcript;
-        output.textContent = fullTranscript;
-        //output.textContent = transcript;
+        output.textContent = transcript;
       };
 
       // On recognition error
@@ -84,27 +100,12 @@
 
       // Calculate and display score
       getScoreButton.addEventListener("click", () => {
-        let selectedPhrase = document.querySelector('input[name="phrase"]:checked').value;
+        const selectedPhrase = document.querySelector('input[name="phrase"]:checked').value;
         let matchCount = 0;
 
-        // Remove special characters from fullTranscript
-        fullTranscript = removeCharacter(fullTranscript, '.');
-        fullTranscript = removeCharacter(fullTranscript, '?');
-        fullTranscript = removeCharacter(fullTranscript, ';')
-        console.log(fullTranscript);
-
-        // Remove special characters from phaseWords
-        selectedPhrase = removeCharacter(selectedPhrase, '.');
-        selectedPhrase = removeCharacter(selectedPhrase, '?');
-        selectedPhrase = removeCharacter(selectedPhrase, ';');
-        console.log(selectedPhrase);
-
         // Compare transcript with selected phrase word by word
-        const transcriptWords = fullTranscript.trim().toLowerCase().split(/\s+/);
+        const transcriptWords = transcript.trim().toLowerCase().split(/\s+/);
         const phraseWords = selectedPhrase.trim().toLowerCase().split(/\s+/);
-        console.log('------------------');
-        console.log(transcriptWords);
-        console.log(phraseWords);
 
         phraseWords.forEach((word, index) => {
           if (transcriptWords[index] === word) {
@@ -113,7 +114,7 @@
         });
 
         const score = Math.round((matchCount / phraseWords.length) * 100);
-        scoreDisplay.textContent = `${score}/100 (accuracy compared to selected phrase)`;
+        scoreDisplay.textContent = `${score} (accuracy compared to selected phrase)`;
       });
     }
   </script>
