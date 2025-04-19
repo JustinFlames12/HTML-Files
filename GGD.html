@@ -94,7 +94,7 @@
     <button id="submitWord">Submit</button>
   </div>
   
-  <!-- Both containers for valid and invalid words -->
+  <!-- Both containers for allowed and disallowed words -->
   <div class="container">
     <div id="greenBox" class="box">
       <h3>Green Box (Allowed Words)</h3>
@@ -121,22 +121,98 @@
       const greenBox = document.getElementById("greenBox");
       const redBox = document.getElementById("redBox");
 
-      // Check if input contains letters only.
+      // Validation: Only letters allowed.
       function isValidWord(word) {
         return /^[a-zA-Z]+$/.test(word);
       }
       
-      // Checks whether a word is a palindrome (ignoring case).
+      // Rule 1: Check if a word is a palindrome (ignoring case).
       function isPalindrome(word) {
         const normalized = word.toLowerCase();
         const reversed = normalized.split("").reverse().join("");
         return normalized === reversed;
       }
       
+      // Rule 2: Check if the word has at least one double letter.
+      function hasDoubleLetters(word) {
+        const normalized = word.toLowerCase();
+        for (let i = 0; i < normalized.length - 1; i++) {
+          if (normalized[i] === normalized[i + 1]) {
+            return true;
+          }
+        }
+        return false;
+      }
+      
+      // Rule 3: Check if the word is an isogram (no repeating letters).
+      function isIsogram(word) {
+        const normalized = word.toLowerCase();
+        const seen = new Set();
+        for (let char of normalized) {
+          if (seen.has(char)) {
+            return false;
+          }
+          seen.add(char);
+        }
+        return true;
+      }
+      
+      // Rule 4: Check if the word contains all vowels: a, e, i, o, u.
+      function containsAllVowels(word) {
+        const vowels = "aeiou";
+        const normalized = word.toLowerCase();
+        // Create a set to hold vowels found in the word.
+        const foundVowels = new Set();
+        for (let char of normalized) {
+          if (vowels.includes(char)) {
+            foundVowels.add(char);
+          }
+        }
+        return foundVowels.size === vowels.length;
+      }
+      
+      // Rule 5: Check if the word consists only of consonants.
+      function isConsonantOnly(word) {
+        return /^[^aeiouAEIOU]+$/.test(word);
+      }
+      
+      // Define the possible rules for the game.
+      const rules = [
+        {
+          name: "palindrome",
+          acceptable: ["palindrome", "palindromes"],
+          validator: isPalindrome
+        },
+        {
+          name: "doubleletters",
+          acceptable: ["doubleletters", "double letters"],
+          validator: hasDoubleLetters
+        },
+        {
+          name: "isogram",
+          acceptable: ["isogram", "isograms"],
+          validator: isIsogram
+        },
+        {
+          name: "allvowels",
+          acceptable: ["allvowels", "all vowels"],
+          validator: containsAllVowels
+        },
+        {
+          name: "consonantonly",
+          acceptable: ["consonantonly", "consonant only"],
+          validator: isConsonantOnly
+        }
+      ];
+      
+      // Randomly choose one rule when the page loads.
+      const selectedRule = rules[Math.floor(Math.random() * rules.length)];
+      console.log("Secret Rule Chosen:", selectedRule.name);  // For testing purposes.
+      
       // Event listener for word submission.
       submitWordBtn.addEventListener("click", function() {
         const word = wordInput.value.trim();
-        if (word === "") return; // Skip if empty.
+        if (word === "") return; // Skip processing empty input.
         
         if (!isValidWord(word)) {
           alert("Invalid input: Please enter only letters.");
@@ -149,27 +225,29 @@
         wordSpan.className = "word";
         wordSpan.textContent = word;
         
-        // If the word is a palindrome, add to green box; otherwise, red box.
-        if (isPalindrome(word)) {
+        // If word passes the selected rule, add it to the green box; otherwise, to the red box.
+        if (selectedRule.validator(word)) {
           greenBox.appendChild(wordSpan);
         } else {
           redBox.appendChild(wordSpan);
         }
         
-        wordInput.value = ""; // Clear the input for the next word.
+        wordInput.value = "";
       });
       
       // Event listener for pattern answer submission.
       submitAnswerBtn.addEventListener("click", function() {
-        const answer = patternInput.value.trim().toLowerCase();
+        let answer = patternInput.value.trim().toLowerCase();
+        // Normalize the answer by removing spaces.
+        answer = answer.replace(/\s+/g, "");
         
-        if (answer === "palindrome" || answer === "palindromes") {
+        if (selectedRule.acceptable.includes(answer)) {
           alert("Congratulations. You figured out the pattern");
         } else {
           alert("Sorry, that is not the pattern");
         }
         
-        patternInput.value = ""; // Clear the answer input.
+        patternInput.value = "";
       });
     });
   </script>
