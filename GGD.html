@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Green Glass Door Game</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 30px;
+      background-color: #f9f9f9;
+    }
+    
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    
+    .section {
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    
+    label {
+      font-size: 18px;
+      margin-right: 10px;
+    }
+    
+    input[type="text"] {
+      padding: 8px;
+      font-size: 16px;
+      width: 250px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    
+    button {
+      padding: 8px 12px;
+      font-size: 16px;
+      margin-left: 10px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    
+    button:hover {
+      opacity: 0.9;
+    }
+    
+    /* Containers for the words */
+    .container {
+      display: flex;
+      justify-content: space-around;
+      margin-top: 20px;
+    }
+    
+    .box {
+      flex: 1;
+      margin: 10px;
+      padding: 10px;
+      min-height: 200px;
+      border: 2px solid;
+      border-radius: 5px;
+      background-color: #fff;
+    }
+    
+    #greenBox {
+      border-color: green;
+      background-color: #e0f8e9;
+    }
+    
+    #redBox {
+      border-color: red;
+      background-color: #fde6e6;
+    }
+    
+    /* Styling individual words */
+    .word {
+      margin: 5px;
+      padding: 4px 8px;
+      display: inline-block;
+      border-radius: 3px;
+      background-color: #f1f1f1;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Green Glass Door</h1>
+  
+  <!-- Section for word entry -->
+  <div class="section">
+    <label for="wordInput">Enter a word:</label>
+    <input type="text" id="wordInput" placeholder="Only letters, no numbers or symbols">
+    <button id="submitWord">Submit</button>
+  </div>
+  
+  <!-- Both containers for valid and invalid words -->
+  <div class="container">
+    <div id="greenBox" class="box">
+      <h3>Green Box (Allowed Words)</h3>
+    </div>
+    <div id="redBox" class="box">
+      <h3>Red Box (Not Allowed Words)</h3>
+    </div>
+  </div>
+  
+  <!-- Section for submitting the pattern guess -->
+  <div class="section">
+    <label for="patternInput">What is the pattern?</label>
+    <input type="text" id="patternInput" placeholder="Your answer...">
+    <button id="submitAnswer">Submit Answer</button>
+  </div>
+  
+  <script>
+    // Ensure the DOM is loaded before running scripts.
+    document.addEventListener("DOMContentLoaded", function() {
+      const wordInput = document.getElementById("wordInput");
+      const patternInput = document.getElementById("patternInput");
+      const submitWordBtn = document.getElementById("submitWord");
+      const submitAnswerBtn = document.getElementById("submitAnswer");
+      const greenBox = document.getElementById("greenBox");
+      const redBox = document.getElementById("redBox");
+
+      // Check if input contains letters only.
+      function isValidWord(word) {
+        return /^[a-zA-Z]+$/.test(word);
+      }
+      
+      // Checks whether a word is a palindrome (ignoring case).
+      function isPalindrome(word) {
+        const normalized = word.toLowerCase();
+        const reversed = normalized.split("").reverse().join("");
+        return normalized === reversed;
+      }
+      
+      // Event listener for word submission.
+      submitWordBtn.addEventListener("click", function() {
+        const word = wordInput.value.trim();
+        if (word === "") return; // Skip if empty.
+        
+        if (!isValidWord(word)) {
+          alert("Invalid input: Please enter only letters.");
+          wordInput.value = "";
+          return;
+        }
+        
+        // Create a span element to display the word.
+        const wordSpan = document.createElement("span");
+        wordSpan.className = "word";
+        wordSpan.textContent = word;
+        
+        // If the word is a palindrome, add to green box; otherwise, red box.
+        if (isPalindrome(word)) {
+          greenBox.appendChild(wordSpan);
+        } else {
+          redBox.appendChild(wordSpan);
+        }
+        
+        wordInput.value = ""; // Clear the input for the next word.
+      });
+      
+      // Event listener for pattern answer submission.
+      submitAnswerBtn.addEventListener("click", function() {
+        const answer = patternInput.value.trim().toLowerCase();
+        
+        if (answer === "palindrome" || answer === "palindromes") {
+          alert("Congratulations. You figured out the pattern");
+        } else {
+          alert("Sorry, that is not the pattern");
+        }
+        
+        patternInput.value = ""; // Clear the answer input.
+      });
+    });
+  </script>
+</body>
+</html>
