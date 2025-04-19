@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Speech Practice with Scoring</title>
+</head>
+<body>
+  <h1>Speech Practice with Scoring</h1>
+  <p>Select a phrase to practice:</p>
+  <form id="phrase-form">
+    <input type="radio" name="phrase" value="The quick brown fox jumps over the lazy dog." checked>
+    "The quick brown fox jumps over the lazy dog."<br>
+    <input type="radio" name="phrase" value="She sells seashells by the seashore.">
+    "She sells seashells by the seashore."<br>
+    <input type="radio" name="phrase" value="How much wood would a woodchuck chuck if a woodchuck could chuck wood?">
+    "How much wood would a woodchuck chuck if a woodchuck could chuck wood?"<br>
+  </form>
+
+  <button id="start-btn">Start Listening</button>
+  <button id="stop-btn" disabled>Stop Listening</button>
+  <button id="get-score-btn" disabled>Get Score</button>
+  <p><strong>Your Speech-to-Text Output:</strong></p>
+  <p id="output"></p>
+  <p><strong>Your Score:</strong></p>
+  <p id="score"></p>
+
+  <script>
+  function removeCharacter(str, charToRemove) {
+    return str.split(charToRemove).join('');
+      return str.replace(regex, '');
+  }
+    // Check for browser compatibility
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+    if (!SpeechRecognition) {
+      alert("Sorry, your browser does not support Speech-to-Text.");
+    } else {
+      const recognition = new SpeechRecognition();
+      recognition.lang = 'en-US';
+      recognition.continuous = true;
+
+      const startButton = document.getElementById("start-btn");
+      const stopButton = document.getElementById("stop-btn");
+      const getScoreButton = document.getElementById("get-score-btn");
+      const output = document.getElementById("output");
+      const scoreDisplay = document.getElementById("score");
+
+      let transcript = '';
+      let fullTranscript = '';
+
+      // Start recognition
+      startButton.addEventListener("click", () => {
+        recognition.start();
+        startButton.disabled = true;
+        stopButton.disabled = false;
+        getScoreButton.disabled = true;
+        // Reset transcript for a fresh attempt
+        transcript = ''; 
+        fullTranscript = '';
+      });
+
+      // Stop recognition
+      stopButton.addEventListener("click", () => {
+        recognition.stop();
+        startButton.disabled = false;
+        stopButton.disabled = true;
+        getScoreButton.disabled = false;
+      });
+
+      // On recognition result
+      recognition.onresult = (event) => {
+        transcript = event.results[event.results.length - 1][0].transcript;
+        fullTranscript = fullTranscript + ' ' + transcript;
+        output.textContent = fullTranscript;
+        //output.textContent = transcript;
+      };
+
+      // On recognition error
+      recognition.onerror = (event) => {
+        console.error("Speech recognition error:", event.error);
+        alert("An error occurred while recognizing speech.");
+      };
+
+      // Calculate and display score
+      getScoreButton.addEventListener("click", () => {
+        let selectedPhrase = document.querySelector('input[name="phrase"]:checked').value;
+        let matchCount = 0;
+
+        // Remove special characters from fullTranscript
+        fullTranscript = removeCharacter(fullTranscript, '.');
+        fullTranscript = removeCharacter(fullTranscript, '?');
+        fullTranscript = removeCharacter(fullTranscript, ';')
+        console.log(fullTranscript);
+
+        // Remove special characters from phaseWords
+        selectedPhrase = removeCharacter(selectedPhrase, '.');
+        selectedPhrase = removeCharacter(selectedPhrase, '?');
+        selectedPhrase = removeCharacter(selectedPhrase, ';');
+        console.log(selectedPhrase);
+
+        // Compare transcript with selected phrase word by word
+        const transcriptWords = fullTranscript.trim().toLowerCase().split(/\s+/);
+        const phraseWords = selectedPhrase.trim().toLowerCase().split(/\s+/);
+        console.log('------------------');
+        console.log(transcriptWords);
+        console.log(phraseWords);
+
+        phraseWords.forEach((word, index) => {
+          if (transcriptWords[index] === word) {
+            matchCount++;
+          }
+        });
+
+        const score = Math.round((matchCount / phraseWords.length) * 100);
+        scoreDisplay.textContent = `${score}/100 (accuracy compared to selected phrase)`;
+      });
+    }
+  </script>
+</body>
+</html>
