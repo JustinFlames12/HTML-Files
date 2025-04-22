@@ -1,0 +1,18 @@
+{
+    "group1Name": "",
+    "group2Name": "",
+    "group3Name": "",
+    "group4Name": "",
+    "group1Color": "",
+    "group2Color": "",
+    "group3Color": "",
+    "group4Color": "",
+    "group1": ["", "", "", ""],
+    "group2": ["", "", "", ""],
+    "group3": ["", "", "", ""],
+    "group4": ["", "", "", ""],
+    "group1Hint": "",
+    "group2Hint": "",
+    "group3Hint": "",
+    "group4Hint": ""
+}

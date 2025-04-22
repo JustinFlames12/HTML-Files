@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Word Connections Game</title>
+  <style>
+    /* Basic styling, customize as you like */
+    .container {
+      display: grid; /* Use grid layout */
+      grid-template-columns: repeat(4, 1fr); /* 4 equal-width columns */
+      grid-gap: 10px; /* Spacing between grid items */
+      width: max-content; /* Adjust container width as needed */
+    }
+    .word-button {
+      margin: 0; /* Remove margin to rely on grid spacing */
+      padding: 10px;
+      border: 1px solid #ccc;
+      cursor: pointer;
+    }
+    .word-button.selected {
+      background-color: lightblue;
+    }
+    #submitButton {
+      margin-top: 10px;
+      padding: 8px 15px;
+      background-color: #4CAF50; /* Green */
+      border: none;
+      color: white;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    #submitButton:disabled {
+      opacity: 0.5;
+      cursor: default;
+    }
+    #shuffleButton {
+      margin-top: 10px;
+      padding: 8px 15px;
+      background-color: #887f86; /* Gray-ish */
+      border: none;
+      color: white;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    #hintButton {
+      margin-top: 10px;
+      padding: 8px 15px;
+      background-color: #e096d0; /* Gray-ish */
+      border: none;
+      color: white;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    #hintBox {
+      width: 100%;
+      padding: 50px 0;
+      text-align: center;
+      background-color: #e096d0;
+      margin-top: 20px;
+      display: none;
+    }
+    #displayGroupNamesButton {
+      margin-top: 10px;
+      padding: 8px 15px;
+      background-color: #a9d2f4; /* Gray-ish */
+      border: none;
+      color: white;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    #groupNamesBox {
+      width: 100%;
+      padding: 50px 0;
+      text-align: center;
+      background-color: #a9d2f4;
+      margin-top: 20px;
+      display: none;
+    }
+    #shuffleButton:disabled {
+      opacity: 0.5;
+      cursor: default;
+    }
+    .found-words-container {
+      display: flex;
+      flex-direction: column; /* Arrange rows vertically */
+      margin-top: 20px;
+    }
+    .found-words-row {
+      display: flex;
+      margin-bottom: 5px; 
+    }
+    .found-word-button {
+      margin-right: 5px; /* Add spacing between buttons in a row */
+      padding: 8px;
+      border: 1px solid #ccc;
+      cursor: default; /* Indicate that these buttons are not clickable */
+    }
+  </style>
+</head>
+<body>
+
+<h1>Word Connections</h1>
+<div class="container" id="wordContainer"></div>
+<button id="submitButton" disabled>Submit</button>
+<button id="shuffleButton">Shuffle</button>
+<p>Attempts remaining: <span id="attempts">4</span></p>
+<div class="found-words-container" id="foundWordsContainer">
+</div>
+<button id="hintButton" onclick="showHints()">Show Hints</button>
+<button id="displayGroupNamesButton" onclick="showGroupNames()">Show Group Names</button>
+<div id="hintBox">
+</div>
+<div id="groupNamesBox">
+</div>
+
+<script>
+  const group1Name = "Fruits";
+  const group2Name = "Colors";
+  const group3Name = "Vehicles";
+  const group4Name = "Animals";
+  const group1Color = "#cae456"; // Straightforward/easy
+  const group2Color = "green"; // Potentially unfamiliar terms/trivia
+  const group3Color = "blue"; // Potentially unfamiliar terms/trivia
+  const group4Color = "purple"; // The hardest group to solve
+  const group1 = ["Apple", "Banana", "Orange", "Grape"];
+  const group2 = ["Red", "Blue", "Green", "Yellow"];
+  const group3 = ["Car", "Truck", "Bike", "Train"];
+  const group4 = ["Dog", "Cat", "Bird", "Fish"];
+  const group1Hint = "Food that is juicy, sweet, and tart";
+  const group2Hint = "Hue, tint, shade, chroma, and saturation";
+  const group3Hint = "Body type, color, make, year, and license number";
+  const group4Hint = "Some are cute, some are funny, and some are fierce";
+
+
+  const words = group1.concat(group2, group3, group4);
+  const wordContainer = document.getElementById("wordContainer");
+  const submitButton = document.getElementById("submitButton");
+  const shuffleButton = document.getElementById("shuffleButton");
+  const attemptsDisplay = document.getElementById("attempts");
+  let selectedWords = [];
+  let attempts = 4;
+  let groupsRemaining = 4;
+  var currentGroupColor = "";
+
+  const foundWordsContainer = document.getElementById("foundWordsContainer");
+  var wordsAlreadyFound = []; // Keep track of found words
+  var wordsLeft = [];
+  var currentWordOrder = [];
+  var currentConnectionGroupName = "";
+
+  // Function to update the display of found words
+  function updateFoundWordsDisplay() {
+    foundWordsContainer.innerHTML = ''; // Clear previous content
+
+    // Group and sort found words
+    const foundGroup1 = wordsAlreadyFound.filter(word => group1.includes(word)).sort();
+    const foundGroup2 = wordsAlreadyFound.filter(word => group2.includes(word)).sort();
+    const foundGroup3 = wordsAlreadyFound.filter(word => group3.includes(word)).sort();
+    const foundGroup4 = wordsAlreadyFound.filter(word => group4.includes(word)).sort();
+
+    // Create rows for each group
+    createFoundWordsRow(foundGroup1, group1Color, group1Name);
+    createFoundWordsRow(foundGroup2, group2Color, group2Name);
+    createFoundWordsRow(foundGroup3, group3Color, group3Name);
+    createFoundWordsRow(foundGroup4, group4Color, group4Name);
+  }
+
+  // Function that checks if there are at least three items in another array
+  function hasThreeItemsInList(array, list) {
+    let count = 0;
+    for (let item of array) {
+      if (list.includes(item)) {
+        count++;
+        if (count >= 3) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  // Function to create a single row for found words
+  function createFoundWordsRow(words, color, currentGroupName) {
+    if (words.length === 0) return; // Don't create empty rows
+    const rowDiv = document.createElement("div");
+    rowDiv.classList.add("found-words-row");
+    words.forEach(word => {
+      const button = document.createElement("button");
+      button.classList.add("found-word-button");
+      button.textContent = word;
+      button.disabled = true;
+      button.style.backgroundColor = color;
+      rowDiv.appendChild(button);
+    });
+    const groupText = document.createElement("text");
+    groupText.textContent = currentGroupName;
+    groupText.classList.add("found-word-button");
+    rowDiv.appendChild(groupText);
+
+    foundWordsContainer.appendChild(rowDiv);
+  }
+
+  function shuffleWords(shuffle=true){
+    selectedWords = [];
+    // Clear the container
+    wordContainer.innerHTML = '';
+
+    // Remove words from the list
+    if(wordsAlreadyFound.length !== 0){
+      wordsLeft = words.filter(word => !wordsAlreadyFound.includes(`word-button-${word}`));
+      }
+      else{
+        wordsLeft = words;
+      }
+    if(shuffle){
+      // Shuffle the words array randomly
+      for (let i = wordsLeft.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [wordsLeft[i], wordsLeft[j]] = [wordsLeft[j], wordsLeft[i]];
+    }
+    }else{
+      // Don't shuffle the words array randomly
+    }
+    
+    // Create buttons for each word
+    wordsLeft.forEach(word => {
+      const button = document.createElement("button");
+      button.classList.add("word-button");
+      button.textContent = word;
+      button.id = `word-button-${word}`;
+      if(wordsAlreadyFound.includes(button.id)){
+        button.disabled = true;
+        if(group1.includes(button.textContent)){
+            button.style.backgroundColor = group1Color;
+        }
+        else if(group2.includes(button.textContent)){
+          button.style.backgroundColor = group2Color;
+        }
+        else if(group3.includes(button.textContent)){
+          button.style.backgroundColor = group3Color;
+        }
+        else{
+          button.style.backgroundColor = group4Color;
+        }
+      }
+      button.addEventListener("click", () => {
+        // Toggle word selection
+        button.classList.toggle("selected"); 
+        // Update selectedWords array
+        if (selectedWords.includes(word)) {
+          selectedWords = selectedWords.filter(w => w !== word);
+        } else {
+          selectedWords.push(word);
+        }
+        // Enable/disable Submit button based on selection
+        submitButton.disabled = selectedWords.length !== 4;
+      });
+      wordContainer.appendChild(button);
+      currentWordOrder.push(word);
+    });
+  }
+  function showHints() {
+    var hintBoxElement = document.getElementById("hintBox");
+    hintBoxElement.innerHTML = "<b>HINTS:</b><br><b>Group 1:</b>" + group1Hint + "<br><b>Group 2:</b> " + group2Hint + "<br><b>Group 3:</b> " + group3Hint + "<br><b>Group 4:</b> " + group4Hint;
+    if (hintBoxElement.style.display === "none") {
+      hintBoxElement.style.display = "block";
+    } else {
+      hintBoxElement.style.display = "none";
+    }
+  }
+
+  function showGroupNames() {
+    var groupNamesBoxElement = document.getElementById("groupNamesBox");
+    groupNamesBoxElement.innerHTML = "<b>GROUP NAMES:</b><br><b>Group 1:</b>" + group1Name + "<br><b>Group 2:</b> " + group2Name + "<br><b>Group 3:</b> " + group3Name + "<br><b>Group 4:</b> " + group4Name;
+    if (groupNamesBoxElement.style.display === "none") {
+      groupNamesBoxElement.style.display = "block";
+    } else {
+      groupNamesBoxElement.style.display = "none";
+    }
+  }
+
+
+  // Initial shuffling of words
+  shuffleWords();
+
+  submitButton.addEventListener("click", () => {
+    // Check if the selected words form a valid group
+    if (isGroupValid(selectedWords)) {
+      if(selectedWords.sort().join(',') === group1.sort().join(',')){
+        currentConnectionGroupName = group1Name;
+        currentGroupColor = group1Color;
+      }
+      else if(selectedWords.sort().join(',') === group2.sort().join(',')){
+        currentConnectionGroupName = group2Name;
+        currentGroupColor = group2Color;
+      }
+      else if(selectedWords.sort().join(',') === group3.sort().join(',')){
+        currentConnectionGroupName = group3Name;
+        currentGroupColor = group3Color;
+      }
+      else{
+        currentConnectionGroupName = group4Name;
+        currentGroupColor = group4Color;
+      }
+      groupsRemaining--;
+      alert(`Correct group!\n${currentConnectionGroupName.toUpperCase()}\n${selectedWords}\nGroups remaining: ${groupsRemaining}`);
+      // Implement logic to mark the group as solved (e.g., disable buttons, visual feedback)
+      selectedWords.forEach(word => {
+        document.getElementById(`word-button-${word}`).disabled = true;
+        document.getElementById(`word-button-${word}`).style.backgroundColor = currentGroupColor;
+        wordsAlreadyFound.push(`word-button-${word}`);
+      });
+
+      // Update wordsAlreadyFound 
+      wordsAlreadyFound = wordsAlreadyFound.concat(selectedWords);
+
+      // Update the display of found words
+      updateFoundWordsDisplay();
+      shuffleWords(shuffle=false);
+
+    } else {
+      attempts--;
+      attemptsDisplay.textContent = attempts;
+      // Check if 3/4 selected words are in a group
+      if((hasThreeItemsInList(selectedWords, group1) || hasThreeItemsInList(selectedWords, group2) || hasThreeItemsInList(selectedWords, group3) || hasThreeItemsInList(selectedWords, group4))){
+        alert(`Incorrect group. (ONE AWAY)\nAttempts remaining: ${attempts}`);
+      }
+      else{
+        alert(`Incorrect group. Attempts remaining: ${attempts}`);
+      }
+    }
+
+    // Reset for next turn or end game
+    if (attempts === 0) {
+      alert(`Game Over! You ran out of attempts.\n${group1} => ${group1Name}\n${group2} => ${group2Name}\n${group3} => ${group3Name}\n${group4} => ${group4Name}`);
+      // Implement game over logic (e.g., reset game, show solution)
+      // Optionally: Provide visual feedback by removing "selected" class from buttons
+      const selectedButtons = document.querySelectorAll(".word-button.selected");
+      selectedButtons.forEach(button => button.classList.remove("selected"));
+      submitButton.disabled = true;
+      shuffleButton.disabled = true;
+
+      // Make all the words look like they've been found
+      wordsAlreadyFound = words;
+      updateFoundWordsDisplay();
+    } 
+    else if(groupsRemaining === 0){
+      alert("Congratulations. You won.");
+      // Optionally: Provide visual feedback by removing "selected" class from buttons
+      const selectedButtons = document.querySelectorAll(".word-button.selected");
+      selectedButtons.forEach(button => button.classList.remove("selected"));
+      submitButton.disabled = true;
+      shuffleButton.disabled = true;
+    }
+    else {
+      selectedWords = []; // Clear selected words
+      submitButton.disabled = true; // Disable button until 4 more are selected
+      // Optionally: Provide visual feedback by removing "selected" class from buttons
+      const selectedButtons = document.querySelectorAll(".word-button.selected");
+      selectedButtons.forEach(button => button.classList.remove("selected"));
+    }
+  });
+
+  // Shuffle button event listener
+  shuffleButton.addEventListener("click", shuffleWords);
+
+  // Function to check if a group of words is valid (you'll need to implement the logic)
+  function isGroupValid(selectedWords) {
+    // Check if all selected words are present in any single group
+    return [group1, group2, group3, group4].some(group => 
+      selectedWords.every(word => group.includes(word))
+    ); 
+  }
+</script>
+</body>
+</html>

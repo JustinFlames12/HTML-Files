@@ -1,0 +1,18 @@
+{
+    "group1Name": "Fruits",
+    "group2Name": "Colors",
+    "group3Name": "Vehicles",
+    "group4Name": "Animals",
+    "group1Color": "#cae456",
+    "group2Color": "green",
+    "group3Color": "blue",
+    "group4Color": "purple",
+    "group1": ["Apple", "Banana", "Orange", "Grape"],
+    "group2": ["Red", "Blue", "Green", "Yellow"],
+    "group3": ["Car", "Truck", "Bike", "Train"],
+    "group4": ["Dog", "Cat", "Bird", "Fish"],
+    "group1Hint": "Food that is juicy, sweet, and tart",
+    "group2Hint": "Hue, tint, shade, chroma, and saturation",
+    "group3Hint": "Body type, color, make, year, and license number",
+    "group4Hint": "Some are cute, some are funny, and some are fierce"
+}

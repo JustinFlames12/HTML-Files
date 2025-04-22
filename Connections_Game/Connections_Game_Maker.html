@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Connections Game Maker</title>
+  <style>
+    /* Basic page styles */
+    body {
+      font-family: sans-serif;
+      margin: 20px;
+      background: #f5f5f5;
+    }
+    /* Toggle buttons */
+    .toggle-buttons {
+      margin-bottom: 20px;
+    }
+    .toggle-buttons button {
+      margin-right: 10px;
+      padding: 10px 20px;
+      cursor: pointer;
+      border: none;
+      background: #007BFF;
+      color: #fff;
+      border-radius: 5px;
+      font-size: 1rem;
+    }
+    .toggle-buttons button.active {
+      background: #0056b3;
+    }
+    /* Page containers */
+    .page {
+      display: none;
+      background: #fff;
+      padding: 20px;
+      border-radius: 5px;
+    }
+    .page.active {
+      display: block;
+    }
+    /* Form sections */
+    .form-section {
+      margin-bottom: 20px;
+      border: 1px solid #ddd;
+      padding: 15px;
+      border-radius: 5px;
+      background: #fafafa;
+    }
+    .form-section h3 {
+      margin-top: 0;
+    }
+    .form-group {
+      margin-bottom: 10px;
+    }
+    .form-group label {
+      display: inline-block;
+      width: 120px;
+    }
+    .form-group input[type="text"] {
+      padding: 5px;
+      margin-left: 5px;
+      width: 300px;
+    }
+    /* Download button style */
+    .download-btn {
+      padding: 10px 20px;
+      background: #28a745;
+      border: none;
+      color: #fff;
+      font-size: 1rem;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    /* Upload button style */
+    .upload-btn {
+      padding: 10px 20px;
+      background: #05887d;
+      border: none;
+      color: #fff;
+      font-size: 1rem;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .upload-btn:disabled {
+      opacity: 0.5;
+      cursor: default;
+    }
+  </style>
+</head>
+<body>
+  <!-- Toggle button section -->
+  <div class="toggle-buttons">
+    <button id="btnPage1" class="active">Blank JSON</button>
+    <button id="btnPage2">Input Form</button>
+    <button id="btnPage3">Connections Game Generator</button>
+  </div>
+
+  <!-- Page 1: Blank JSON Download -->
+  <div id="page1" class="page active">
+    <h2>Download Blank JSON</h2>
+    <p>Click the button below to download a JSON file with blank values.</p>
+    <button class="download-btn" id="downloadBlank">Download Blank JSON</button>
+    <button class="download-btn" id="downloadExample">Download Example JSON</button>
+  </div>
+
+  <!-- Page 2: GUI for Input and JSON Download -->
+  <div id="page2" class="page">
+    <h2>Fill in the JSON Data</h2>
+    <form id="jsonForm">
+      <!-- Group 1 Section -->
+      <div class="form-section">
+        <h3>Group 1</h3>
+        <div class="form-group">
+          <label for="group1Name">Name:</label>
+          <input type="text" id="group1Name" name="group1Name" />
+        </div>
+        <div class="form-group">
+          <label for="group1Color">Color:</label>
+          <input type="text" id="group1Color" name="group1Color" />
+        </div>
+        <div class="form-group">
+          <label>Items:</label>
+          <input type="text" id="group1_item0" name="group1_item0" placeholder="Item 1" />
+          <input type="text" id="group1_item1" name="group1_item1" placeholder="Item 2" />
+          <input type="text" id="group1_item2" name="group1_item2" placeholder="Item 3" />
+          <input type="text" id="group1_item3" name="group1_item3" placeholder="Item 4" />
+        </div>
+        <div class="form-group">
+          <label for="group1Hint">Hint:</label>
+          <input type="text" id="group1Hint" name="group1Hint" />
+        </div>
+      </div>
+
+      <!-- Group 2 Section -->
+      <div class="form-section">
+        <h3>Group 2</h3>
+        <div class="form-group">
+          <label for="group2Name">Name:</label>
+          <input type="text" id="group2Name" name="group2Name" />
+        </div>
+        <div class="form-group">
+          <label for="group2Color">Color:</label>
+          <input type="text" id="group2Color" name="group2Color" />
+        </div>
+        <div class="form-group">
+          <label>Items:</label>
+          <input type="text" id="group2_item0" name="group2_item0" placeholder="Item 1" />
+          <input type="text" id="group2_item1" name="group2_item1" placeholder="Item 2" />
+          <input type="text" id="group2_item2" name="group2_item2" placeholder="Item 3" />
+          <input type="text" id="group2_item3" name="group2_item3" placeholder="Item 4" />
+        </div>
+        <div class="form-group">
+          <label for="group2Hint">Hint:</label>
+          <input type="text" id="group2Hint" name="group2Hint" />
+        </div>
+      </div>
+
+      <!-- Group 3 Section -->
+      <div class="form-section">
+        <h3>Group 3</h3>
+        <div class="form-group">
+          <label for="group3Name">Name:</label>
+          <input type="text" id="group3Name" name="group3Name" />
+        </div>
+        <div class="form-group">
+          <label for="group3Color">Color:</label>
+          <input type="text" id="group3Color" name="group3Color" />
+        </div>
+        <div class="form-group">
+          <label>Items:</label>
+          <input type="text" id="group3_item0" name="group3_item0" placeholder="Item 1" />
+          <input type="text" id="group3_item1" name="group3_item1" placeholder="Item 2" />
+          <input type="text" id="group3_item2" name="group3_item2" placeholder="Item 3" />
+          <input type="text" id="group3_item3" name="group3_item3" placeholder="Item 4" />
+        </div>
+        <div class="form-group">
+          <label for="group3Hint">Hint:</label>
+          <input type="text" id="group3Hint" name="group3Hint" />
+        </div>
+      </div>
+
+      <!-- Group 4 Section -->
+      <div class="form-section">
+        <h3>Group 4</h3>
+        <div class="form-group">
+          <label for="group4Name">Name:</label>
+          <input type="text" id="group4Name" name="group4Name" />
+        </div>
+        <div class="form-group">
+          <label for="group4Color">Color:</label>
+          <input type="text" id="group4Color" name="group4Color" />
+        </div>
+        <div class="form-group">
+          <label>Items:</label>
+          <input type="text" id="group4_item0" name="group4_item0" placeholder="Item 1" />
+          <input type="text" id="group4_item1" name="group4_item1" placeholder="Item 2" />
+          <input type="text" id="group4_item2" name="group4_item2" placeholder="Item 3" />
+          <input type="text" id="group4_item3" name="group4_item3" placeholder="Item 4" />
+        </div>
+        <div class="form-group">
+          <label for="group4Hint">Hint:</label>
+          <input type="text" id="group4Hint" name="group4Hint" />
+        </div>
+      </div>
+
+      <!-- Download JSON Button -->
+      <button type="button" class="download-btn" id="downloadInput">Download JSON with Input Data</button>
+    </form>
+  </div>
+
+  <!-- Page 3: Connections Game Generator -->
+  <div id="page3" class="page">
+    <h2>Connections Game Generator</h2>
+    <p>Ensure your config file is fully filled out, then upload it here to generate your Connections Game.</p>
+    <input class="download-btn" type="file" id="fileInput" name="file" accept=".json"/>
+    <div id="errorMessage" style="color: red; display: none;">Invalid file type</div>
+
+    <!-- <button class="download-btn" type="submit">Upload</button> -->
+    <button class="upload-btn" id="uploadJSON" disabled>Generate Connections Game</button>
+  </div>
+
+  <script>
+    var jsonContent = {};
+
+    // Toggle between the two pages
+    const btnPage1 = document.getElementById("btnPage1");
+    const btnPage2 = document.getElementById("btnPage2");
+    const btnPage3 = document.getElementById("btnPage3");
+    const page1 = document.getElementById("page1");
+    const page2 = document.getElementById("page2");
+    const page3 = document.getElementById("page3");
+
+    btnPage1.addEventListener("click", function () {
+      btnPage1.classList.add("active");
+      btnPage2.classList.remove("active");
+      btnPage3.classList.remove("active");
+      page1.classList.add("active");
+      page2.classList.remove("active");
+      page3.classList.remove("active");
+    });
+
+    btnPage2.addEventListener("click", function () {
+      btnPage2.classList.add("active");
+      btnPage1.classList.remove("active");
+      btnPage3.classList.remove("active");
+      page2.classList.add("active");
+      page1.classList.remove("active");
+      page3.classList.remove("active");
+    });
+
+    btnPage3.addEventListener("click", function () {
+      btnPage3.classList.add("active");
+      btnPage2.classList.remove("active");
+      btnPage1.classList.remove("active");
+      page3.classList.add("active");
+      page2.classList.remove("active");
+      page1.classList.remove("active");
+    });
+
+    // Helper function to download content as a file
+    function downloadFile(content, fileName, contentType) {
+      const a = document.createElement("a");
+      const file = new Blob([content], { type: contentType });
+      a.href = URL.createObjectURL(file);
+      a.download = fileName;
+      a.click();
+      URL.revokeObjectURL(a.href);
+    }
+
+    // Blank JSON object with the required fields
+    const blankData = {
+      "group1Name": "",
+      "group2Name": "",
+      "group3Name": "",
+      "group4Name": "",
+      "group1Color": "",
+      "group2Color": "",
+      "group3Color": "",
+      "group4Color": "",
+      "group1": ["", "", "", ""],
+      "group2": ["", "", "", ""],
+      "group3": ["", "", "", ""],
+      "group4": ["", "", "", ""],
+      "group1Hint": "",
+      "group2Hint": "",
+      "group3Hint": "",
+      "group4Hint": ""
+    };
+
+    // Make sure the uploaded file is a JSON file
+    document.getElementById('fileInput').addEventListener('change', function(event) {
+    const file = event.target.files[0];
+    const allowedExtensions = /(\.json)$/i;
+
+    if (allowedExtensions.exec(file.name)) {
+    document.getElementById('errorMessage').style.display = 'none';
+    // event.target.value = '';
+    document.getElementById('uploadJSON').disabled = false;
+    
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                jsonContent = JSON.parse(e.target.result);
+                // console.log(jsonContent);
+                console.log(jsonContent["group1"].filter(str => str));
+                const requiredFields = ["group1Name","group2Name","group3Name","group4Name",
+                "group1Color","group2Color","group3Color","group4Color",
+                "group1","group2","group3","group4","group1Hint","group2Hint",
+                "group3Hint", "group4Hint"]
+                const allKeysExist = requiredFields.every(key => key in jsonContent);
+                if(!allKeysExist){
+                  for (let key in jsonContent) {
+                    if(key === "group1" || key === "group2" || key === "group3" || key === "group4"){
+                      if(jsonContent[key].length !== 4){
+                        console.error('Invalid JSON. Ensure all the required field are in the correct format.')
+                        alert('Invalid JSON. Ensure all the required field are in the correct format.');
+                        document.getElementById('uploadJSON').disabled = true;
+                        break;
+                      }
+                    }
+                    else{
+                      if (jsonContent[key] === "" || jsonContent[key] === '') {
+                        console.error('Invalid JSON. Ensure all the required field are in the correct format.')
+                        alert('Invalid JSON. Ensure all the required field are in the correct format.');
+                        document.getElementById('uploadJSON').disabled = true;
+                        break;
+                      }
+                    }
+                  }
+                  console.error('Invalid JSON. Ensure all the required field are in the JSON file.')
+                  alert('Invalid JSON. Ensure all the required field are in the JSON file.');
+                  document.getElementById('uploadJSON').disabled = true;
+                }
+                
+            } catch (error) {
+                console.error('Error parsing JSON:', error);
+                alert('Error parsing JSON:', error);
+            }
+        };
+        reader.readAsText(file);
+    
+    } else {
+    document.getElementById('errorMessage').style.display = 'block';
+    document.getElementById('uploadJSON').disabled = true;
+    }
+    });
+
+    
+
+    // Download the blank JSON file on clicking the button
+    document.getElementById("downloadBlank").addEventListener("click", function () {
+      const dataStr = JSON.stringify(blankData, null, 4);
+      downloadFile(dataStr, "connections_game_config_blank.json", "application/json");
+    });
+
+    // Download the example JSON file on clicking the button
+    document.getElementById("downloadExample").addEventListener("click", function () {
+      const formData = {
+        "group1Name": "Fruits",
+        "group2Name": "Colors",
+        "group3Name": "Vehicles",
+        "group4Name": "Animals",
+        "group1Color": "#cae456",
+        "group2Color": "green",
+        "group3Color": "blue",
+        "group4Color": "purple",
+        "group1": [
+          "Apple", 
+          "Banana", 
+          "Orange", 
+          "Grape"
+        ],
+        "group2": [
+          "Red", 
+          "Blue", 
+          "Green", 
+          "Yellow"
+        ],
+        "group3": [
+          "Car", 
+          "Truck", 
+          "Bike", 
+          "Train"
+        ],
+        "group4": [
+          "Dog", 
+          "Cat", 
+          "Bird", 
+          "Fish"
+        ],
+        "group1Hint": "Food that is juicy, sweet, and tart",
+        "group2Hint": "Hue, tint, shade, chroma, and saturation",
+        "group3Hint": "Body type, color, make, year, and license number",
+        "group4Hint": "Some are cute, some are funny, and some are fierce"
+      };
+
+      const dataStr = JSON.stringify(formData, null, 4);
+      downloadFile(dataStr, "connections_game_config_example.json", "application/json");
+    });
+
+    // Gather all the input data and download as a JSON file on clicking the button
+    document.getElementById("downloadInput").addEventListener("click", function () {
+      const formData = {
+        "group1Name": document.getElementById("group1Name").value,
+        "group2Name": document.getElementById("group2Name").value,
+        "group3Name": document.getElementById("group3Name").value,
+        "group4Name": document.getElementById("group4Name").value,
+        "group1Color": document.getElementById("group1Color").value,
+        "group2Color": document.getElementById("group2Color").value,
+        "group3Color": document.getElementById("group3Color").value,
+        "group4Color": document.getElementById("group4Color").value,
+        "group1": [
+          document.getElementById("group1_item0").value,
+          document.getElementById("group1_item1").value,
+          document.getElementById("group1_item2").value,
+          document.getElementById("group1_item3").value
+        ],
+        "group2": [
+          document.getElementById("group2_item0").value,
+          document.getElementById("group2_item1").value,
+          document.getElementById("group2_item2").value,
+          document.getElementById("group2_item3").value
+        ],
+        "group3": [
+          document.getElementById("group3_item0").value,
+          document.getElementById("group3_item1").value,
+          document.getElementById("group3_item2").value,
+          document.getElementById("group3_item3").value
+        ],
+        "group4": [
+          document.getElementById("group4_item0").value,
+          document.getElementById("group4_item1").value,
+          document.getElementById("group4_item2").value,
+          document.getElementById("group4_item3").value
+        ],
+        "group1Hint": document.getElementById("group1Hint").value,
+        "group2Hint": document.getElementById("group2Hint").value,
+        "group3Hint": document.getElementById("group3Hint").value,
+        "group4Hint": document.getElementById("group4Hint").value
+      };
+
+      const dataStr = JSON.stringify(formData, null, 4);
+      downloadFile(dataStr, "connections_game_config_inputData.json", "application/json");
+    });
+
+    // Download Connections Game file after config file is uploaded
+    document.getElementById('uploadJSON').addEventListener('click', function() {
+      // Define the multi-string variable
+      const multiString = `<!DOCTYPE html>
+<html>
+<head>
+  <title>Word Connections Game</title>
+  <style>
+    /* Basic styling, customize as you like */
+    .container {
+      display: grid; /* Use grid layout */
+      grid-template-columns: repeat(4, 1fr); /* 4 equal-width columns */
+      grid-gap: 10px; /* Spacing between grid items */
+      width: max-content; /* Adjust container width as needed */
+    }
+    .word-button {
+      margin: 0; /* Remove margin to rely on grid spacing */
+      padding: 10px;
+      border: 1px solid #ccc;
+      cursor: pointer;
+    }
+    .word-button.selected {
+      background-color: lightblue;
+    }
+    #submitButton {
+      margin-top: 10px;
+      padding: 8px 15px;
+      background-color: #4CAF50; /* Green */
+      border: none;
+      color: white;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    #submitButton:disabled {
+      opacity: 0.5;
+      cursor: default;
+    }
+    #shuffleButton {
+      margin-top: 10px;
+      padding: 8px 15px;
+      background-color: #887f86; /* Gray-ish */
+      border: none;
+      color: white;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    #hintButton {
+      margin-top: 10px;
+      padding: 8px 15px;
+      background-color: #e096d0; /* Gray-ish */
+      border: none;
+      color: white;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    #hintBox {
+      width: 100%;
+      padding: 50px 0;
+      text-align: center;
+      background-color: #e096d0;
+      margin-top: 20px;
+      display: none;
+    }
+    #displayGroupNamesButton {
+      margin-top: 10px;
+      padding: 8px 15px;
+      background-color: #a9d2f4; /* Gray-ish */
+      border: none;
+      color: white;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    #groupNamesBox {
+      width: 100%;
+      padding: 50px 0;
+      text-align: center;
+      background-color: #a9d2f4;
+      margin-top: 20px;
+      display: none;
+    }
+    #shuffleButton:disabled {
+      opacity: 0.5;
+      cursor: default;
+    }
+    .found-words-container {
+      display: flex;
+      flex-direction: column; /* Arrange rows vertically */
+      margin-top: 20px;
+    }
+    .found-words-row {
+      display: flex;
+      margin-bottom: 5px; 
+    }
+    .found-word-button {
+      margin-right: 5px; /* Add spacing between buttons in a row */
+      padding: 8px;
+      border: 1px solid #ccc;
+      cursor: default; /* Indicate that these buttons are not clickable */
+    }
+  </style>
+</head>
+<body>
+
+<h1>Word Connections</h1>
+<div class="container" id="wordContainer"></div>
+<button id="submitButton" disabled>Submit</button>
+<button id="shuffleButton">Shuffle</button>
+<p>Attempts remaining: <span id="attempts">4</span></p>
+<div class="found-words-container" id="foundWordsContainer">
+</div>
+<button id="hintButton" onclick="showHints()">Show Hints</button>
+<button id="displayGroupNamesButton" onclick="showGroupNames()">Show Group Names</button>
+<div id="hintBox">
+</div>
+<div id="groupNamesBox">
+</div>
+
+<script>
+  const group1Name = "${jsonContent["group1Name"]}";
+  const group2Name = "${jsonContent["group2Name"]}";
+  const group3Name = "${jsonContent["group3Name"]}";
+  const group4Name = "${jsonContent["group4Name"]}";
+  const group1Color = "${jsonContent["group1Color"]}"; // Straightforward/easy
+  const group2Color = "${jsonContent["group2Color"]}"; // Potentially unfamiliar terms/trivia
+  const group3Color = "${jsonContent["group3Color"]}"; // Potentially unfamiliar terms/trivia
+  const group4Color = "${jsonContent["group4Color"]}"; // The hardest group to solve
+  const group1 = ["${jsonContent["group1"].join('","')}"];
+  const group2 = ["${jsonContent["group2"].join('","')}"];
+  const group3 = ["${jsonContent["group3"].join('","')}"];
+  const group4 = ["${jsonContent["group4"].join('","')}"];
+  const group1Hint = "${jsonContent["group1Hint"]}";
+  const group2Hint = "${jsonContent["group2Hint"]}";
+  const group3Hint = "${jsonContent["group3Hint"]}";
+  const group4Hint = "${jsonContent["group4Hint"]}";
+
+  const words = group1.concat(group2, group3, group4);
+  const wordContainer = document.getElementById("wordContainer");
+  const submitButton = document.getElementById("submitButton");
+  const shuffleButton = document.getElementById("shuffleButton");
+  const attemptsDisplay = document.getElementById("attempts");
+  let selectedWords = [];
+  let attempts = 4;
+  let groupsRemaining = 4;
+  var currentGroupColor = "";
+
+  const foundWordsContainer = document.getElementById("foundWordsContainer");
+  var wordsAlreadyFound = []; // Keep track of found words
+  var wordsLeft = [];
+  var currentWordOrder = [];
+  var currentConnectionGroupName = "";
+
+  // Function to update the display of found words
+  function updateFoundWordsDisplay() {
+    foundWordsContainer.innerHTML = ''; // Clear previous content
+
+    // Group and sort found words
+    const foundGroup1 = wordsAlreadyFound.filter(word => group1.includes(word)).sort();
+    const foundGroup2 = wordsAlreadyFound.filter(word => group2.includes(word)).sort();
+    const foundGroup3 = wordsAlreadyFound.filter(word => group3.includes(word)).sort();
+    const foundGroup4 = wordsAlreadyFound.filter(word => group4.includes(word)).sort();
+
+    // Create rows for each group
+    createFoundWordsRow(foundGroup1, group1Color, group1Name);
+    createFoundWordsRow(foundGroup2, group2Color, group2Name);
+    createFoundWordsRow(foundGroup3, group3Color, group3Name);
+    createFoundWordsRow(foundGroup4, group4Color, group4Name);
+  }
+
+  // Function that checks if there are at least three items in another array
+  function hasThreeItemsInList(array, list) {
+    let count = 0;
+    for (let item of array) {
+      if (list.includes(item)) {
+        count++;
+        if (count >= 3) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  // Function to create a single row for found words
+  function createFoundWordsRow(words, color, currentGroupName) {
+    if (words.length === 0) return; // Don't create empty rows
+    const rowDiv = document.createElement("div");
+    rowDiv.classList.add("found-words-row");
+    words.forEach(word => {
+      const button = document.createElement("button");
+      button.classList.add("found-word-button");
+      button.textContent = word;
+      button.disabled = true;
+      button.style.backgroundColor = color;
+      rowDiv.appendChild(button);
+    });
+    const groupText = document.createElement("text");
+    groupText.textContent = currentGroupName;
+    groupText.classList.add("found-word-button");
+    rowDiv.appendChild(groupText);
+
+    foundWordsContainer.appendChild(rowDiv);
+  }
+
+  function shuffleWords(shuffle=true){
+    selectedWords = [];
+    // Clear the container
+    wordContainer.innerHTML = '';
+
+    // Remove words from the list
+    if(wordsAlreadyFound.length !== 0){
+      wordsLeft = words.filter(word => !wordsAlreadyFound.includes("word-button-" + word));
+      }
+      else{
+        wordsLeft = words;
+      }
+    if(shuffle){
+      // Shuffle the words array randomly
+      for (let i = wordsLeft.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [wordsLeft[i], wordsLeft[j]] = [wordsLeft[j], wordsLeft[i]];
+    }
+    }else{
+      // Don't shuffle the words array randomly
+    }
+    
+    // Create buttons for each word
+    wordsLeft.forEach(word => {
+      const button = document.createElement("button");
+      button.classList.add("word-button");
+      button.textContent = word;
+      button.id = "word-button-" + word;
+      if(wordsAlreadyFound.includes(button.id)){
+        button.disabled = true;
+        if(group1.includes(button.textContent)){
+            button.style.backgroundColor = group1Color;
+        }
+        else if(group2.includes(button.textContent)){
+          button.style.backgroundColor = group2Color;
+        }
+        else if(group3.includes(button.textContent)){
+          button.style.backgroundColor = group3Color;
+        }
+        else{
+          button.style.backgroundColor = group4Color;
+        }
+      }
+      button.addEventListener("click", () => {
+        // Toggle word selection
+        button.classList.toggle("selected"); 
+        // Update selectedWords array
+        if (selectedWords.includes(word)) {
+          selectedWords = selectedWords.filter(w => w !== word);
+        } else {
+          selectedWords.push(word);
+        }
+        // Enable/disable Submit button based on selection
+        submitButton.disabled = selectedWords.length !== 4;
+      });
+      wordContainer.appendChild(button);
+      currentWordOrder.push(word);
+    });
+  }
+  function showHints() {
+    var hintBoxElement = document.getElementById("hintBox");
+    hintBoxElement.innerHTML = "<b>HINTS:</b><br><b>Group 1:</b>" + group1Hint + "<br><b>Group 2:</b> " + group2Hint + "<br><b>Group 3:</b> " + group3Hint + "<br><b>Group 4:</b> " + group4Hint;
+    if (hintBoxElement.style.display === "none") {
+      hintBoxElement.style.display = "block";
+    } else {
+      hintBoxElement.style.display = "none";
+    }
+  }
+
+  function showGroupNames() {
+    var groupNamesBoxElement = document.getElementById("groupNamesBox");
+    groupNamesBoxElement.innerHTML = "<b>GROUP NAMES:</b><br><b>Group 1:</b>" + group1Name + "<br><b>Group 2:</b> " + group2Name + "<br><b>Group 3:</b> " + group3Name + "<br><b>Group 4:</b> " + group4Name;
+    if (groupNamesBoxElement.style.display === "none") {
+      groupNamesBoxElement.style.display = "block";
+    } else {
+      groupNamesBoxElement.style.display = "none";
+    }
+  }
+
+
+  // Initial shuffling of words
+  shuffleWords();
+
+  submitButton.addEventListener("click", () => {
+    // Check if the selected words form a valid group
+    if (isGroupValid(selectedWords)) {
+      if(selectedWords.sort().join(',') === group1.sort().join(',')){
+        currentConnectionGroupName = group1Name;
+        currentGroupColor = group1Color;
+      }
+      else if(selectedWords.sort().join(',') === group2.sort().join(',')){
+        currentConnectionGroupName = group2Name;
+        currentGroupColor = group2Color;
+      }
+      else if(selectedWords.sort().join(',') === group3.sort().join(',')){
+        currentConnectionGroupName = group3Name;
+        currentGroupColor = group3Color;
+      }
+      else{
+        currentConnectionGroupName = group4Name;
+        currentGroupColor = group4Color;
+      }
+      groupsRemaining--;
+      alert("Correct group! --- " + currentConnectionGroupName.toUpperCase() + " --- " + selectedWords + " --- Groups remaining: " + groupsRemaining);
+      // Implement logic to mark the group as solved (e.g., disable buttons, visual feedback)
+      selectedWords.forEach(word => {
+        document.getElementById("word-button-" + word).disabled = true;
+        document.getElementById("word-button-" + word).style.backgroundColor = currentGroupColor;
+        wordsAlreadyFound.push("word-button-" + word);
+      });
+
+      // Update wordsAlreadyFound 
+      wordsAlreadyFound = wordsAlreadyFound.concat(selectedWords);
+
+      // Update the display of found words
+      updateFoundWordsDisplay();
+      shuffleWords(shuffle=false);
+
+    } else {
+      attempts--;
+      attemptsDisplay.textContent = attempts;
+      // Check if 3/4 selected words are in a group
+      if((hasThreeItemsInList(selectedWords, group1) || hasThreeItemsInList(selectedWords, group2) || hasThreeItemsInList(selectedWords, group3) || hasThreeItemsInList(selectedWords, group4))){
+        alert("Incorrect group. (ONE AWAY) --- Attempts remaining: " + attempts);
+      }
+      else{
+        alert("Incorrect group. Attempts remaining: " + attempts);
+      }
+    }
+
+    // Reset for next turn or end game
+    if (attempts === 0) {
+      alert("Game Over! You ran out of attempts. --- "+group1+" => "+group1Name+"+ --- "+group2+" => "+group2Name+" --- "+group3+" => "+group3Name+" --- "+group4+" => "+group4Name);
+      // Implement game over logic (e.g., reset game, show solution)
+      // Optionally: Provide visual feedback by removing "selected" class from buttons
+      const selectedButtons = document.querySelectorAll(".word-button.selected");
+      selectedButtons.forEach(button => button.classList.remove("selected"));
+      submitButton.disabled = true;
+      shuffleButton.disabled = true;
+
+      // Make all the words look like they've been found
+      wordsAlreadyFound = words;
+      updateFoundWordsDisplay();
+    } 
+    else if(groupsRemaining === 0){
+      alert("Congratulations. You won.");
+      // Optionally: Provide visual feedback by removing "selected" class from buttons
+      const selectedButtons = document.querySelectorAll(".word-button.selected");
+      selectedButtons.forEach(button => button.classList.remove("selected"));
+      submitButton.disabled = true;
+      shuffleButton.disabled = true;
+    }
+    else {
+      selectedWords = []; // Clear selected words
+      submitButton.disabled = true; // Disable button until 4 more are selected
+      // Optionally: Provide visual feedback by removing "selected" class from buttons
+      const selectedButtons = document.querySelectorAll(".word-button.selected");
+      selectedButtons.forEach(button => button.classList.remove("selected"));
+    }
+  });
+
+  // Shuffle button event listener
+  shuffleButton.addEventListener("click", shuffleWords);
+
+  // Function to check if a group of words is valid (you'll need to implement the logic)
+  function isGroupValid(selectedWords) {
+    // Check if all selected words are present in any single group
+    return [group1, group2, group3, group4].some(group => 
+      selectedWords.every(word => group.includes(word))
+    ); 
+  }
+<\/script>
+</body>
+</html>`;
+
+      // Create a Blob from the multi-string variable
+      const blob = new Blob([multiString], { type: 'text/html' });
+
+      // Create a link element
+      const link = document.createElement('a');
+
+      // Set the download attribute with a filename
+      link.download = 'Connections_Game.html';
+
+      // Create a URL for the Blob and set it as the href attribute
+      link.href = window.URL.createObjectURL(blob);
+
+      // Append the link to the body
+      document.body.appendChild(link);
+
+      // Programmatically click the link to trigger the download
+      link.click();
+
+      // Remove the link from the document
+      document.body.removeChild(link);
+  });
+  </script>
+</body>
+</html>
