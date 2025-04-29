@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <title>Strands-Inspired Word Puzzle</title>
   <style>
+    /* Basic Reset and Layout */
     body {
       font-family: sans-serif;
       text-align: center;
@@ -12,6 +13,11 @@
     }
     h1 {
       margin-bottom: 10px;
+    }
+    h2 {
+      margin-bottom: 20px;
+      font-size: 24px;
+      color: #333;
     }
     #message {
       margin-top: 15px;
@@ -37,6 +43,7 @@
       cursor: pointer;
       font-size: 18px;
       font-weight: bold;
+      transition: background 0.2s;
     }
     .cell.used {
       background: #d3d3d3;
@@ -63,31 +70,60 @@
 </head>
 <body>
   <h1>Strands-Inspired Word Puzzle</h1>
+  <h2>Theme: Sounds</h2>
   <div class="grid" id="grid"></div>
   <ul class="word-list" id="wordList"></ul>
   <div id="message"></div>
 
   <script>
-    // Grid dimensions
+    // Define the grid dimensions.
     const rows = 6;
     const cols = 8;
     
-    // Generate a board of random letters with each cell state.
-    let board = [];
-    const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    // The allowed (hidden) words that fully pack the grid.
+    // Their combined letters (18+6+5+5+5+4+5 = 48) will fill the 6x8 board.
+    const allowedWords = [
+      "MUSICALINSTRUMENTS", // 18 letters
+      "GUITAR",             // 6 letters
+      "PIANO",              // 5 letters
+      "DRUMS",              // 5 letters
+      "ORGAN",              // 5 letters
+      "PIPE",               // 4 letters
+      "FLUTE"               // 5 letters
+    ];
+    
+    // Build one long string of all letters in order.
+    const allLetters = allowedWords.join(''); // should be exactly 48 letters
+    
+    // Create an empty board (2D array) where each cell stores its letter and a used flag.
+    let board = Array.from({ length: rows }, () =>
+      Array.from({ length: cols }, () => ({ letter: '', used: false }))
+    );
+    
+    // Define a snake path that visits every cell.
+    // For even rows, traverse left-to-right; for odd rows, right-to-left.
+    let snakeOrder = [];
     for (let r = 0; r < rows; r++) {
-      const rowArr = [];
-      for (let c = 0; c < cols; c++) {
-        // Create a cell object storing letter and used flag
-        const letter = letters.charAt(Math.floor(Math.random() * letters.length));
-        rowArr.push({ letter, used: false });
+      if (r % 2 === 0) {
+        for (let c = 0; c < cols; c++) {
+          snakeOrder.push({ row: r, col: c });
+        }
+      } else {
+        for (let c = cols - 1; c >= 0; c--) {
+          snakeOrder.push({ row: r, col: c });
+        }
       }
-      board.push(rowArr);
+    }
+    
+    // Place each letter from our long string into the board in snake order.
+    for (let i = 0; i < snakeOrder.length; i++) {
+      const { row, col } = snakeOrder[i];
+      board[row][col].letter = allLetters[i];
     }
     
     const gridEl = document.getElementById("grid");
     
-    // Render the board grid into the DOM.
+    // Render the board onto the page.
     function renderGrid() {
       gridEl.innerHTML = "";
       for (let r = 0; r < rows; r++) {
@@ -108,7 +144,7 @@
     
     renderGrid();
     
-    // Current word selection state.
+    // Variables to track the current selection state.
     let isSelecting = false;
     let currentSelection = [];
     
@@ -120,7 +156,7 @@
       };
     }
     
-    // Helper: Check if cellB is adjacent (including diagonals) to cellA.
+    // Check if cellB is adjacent (including diagonally) to cellA.
     function isAdjacent(cellA, cellB) {
       const a = getCellCoordinates(cellA);
       const b = getCellCoordinates(cellB);
@@ -129,7 +165,7 @@
       return (rowDiff <= 1 && colDiff <= 1) && !(rowDiff === 0 && colDiff === 0);
     }
     
-    // Begins a new selection if clicking on an unused cell.
+    // Begin a new selection when pressing the mouse on an unused cell.
     function handleMouseDown(e) {
       if (!e.target.classList.contains("cell")) return;
       if (e.target.classList.contains("used")) return;
@@ -139,9 +175,9 @@
       addCellToSelection(e.target);
     }
     
-    // Adds a cell to the current selection, ensuring it’s contiguous.
+    // Add the cell to the current selection if adjacent and not already added.
     function addCellToSelection(cellEl) {
-      if (currentSelection.indexOf(cellEl) !== -1) return;
+      if (currentSelection.includes(cellEl)) return;
       if (currentSelection.length > 0) {
         const lastCell = currentSelection[currentSelection.length - 1];
         if (!isAdjacent(lastCell, cellEl)) return;
@@ -150,7 +186,7 @@
       currentSelection.push(cellEl);
     }
     
-    // When dragging over cells, add them if they are adjacent.
+    // While dragging over the board, add cells that are eligible.
     function handleMouseEnter(e) {
       if (!isSelecting) return;
       if (!e.target.classList.contains("cell")) return;
@@ -158,28 +194,28 @@
       addCellToSelection(e.target);
     }
     
-    // Called when the mouse button is released.
+    // When finishing the mouse interaction, check if the selection forms a valid word.
     function finishSelection() {
       if (currentSelection.length > 0) {
-        // Form the word from the selected letters.
         const word = currentSelection.map(cell => cell.textContent).join("");
-        // Accept only words of at least 2 letters.
-        if (word.length >= 2) {
+        // If the word is too short or not one of the allowed words, show an error.
+        if (word.length < 2 || !allowedWords.includes(word)) {
+          alert("Sorry, Invalid Word/Phrase");
+          // Clear the selection highlight.
+          currentSelection.forEach(cellEl => cellEl.classList.remove("selected"));
+        } else {
+          // Valid word: add it to the word list and mark these cells as used.
           const wordListEl = document.getElementById("wordList");
           const li = document.createElement("li");
           li.textContent = word;
           wordListEl.appendChild(li);
           
-          // Mark these cells as used both in the DOM and internal board state.
           currentSelection.forEach(cellEl => {
             cellEl.classList.remove("selected");
             cellEl.classList.add("used");
             const { row, col } = getCellCoordinates(cellEl);
             board[row][col].used = true;
           });
-        } else {
-          // Clear the selection if too short.
-          currentSelection.forEach(cellEl => cellEl.classList.remove("selected"));
         }
       }
       isSelecting = false;
@@ -187,7 +223,7 @@
       checkPuzzleComplete();
     }
     
-    // Check if every cell has been used. If so, display a victory message.
+    // Verify if every cell in the board has been used.
     function checkPuzzleComplete() {
       for (let r = 0; r < rows; r++) {
         for (let c = 0; c < cols; c++) {
@@ -197,10 +233,12 @@
       document.getElementById("message").textContent = "Congratulations! Puzzle complete!";
     }
     
-    // Use event delegation on the grid.
+    // Attach event listeners.
     gridEl.addEventListener("mousedown", handleMouseDown);
     gridEl.addEventListener("mouseenter", handleMouseEnter, true);
     document.addEventListener("mouseup", finishSelection);
+    
+    // Optional: Touch support can be added similarly using touchstart, touchmove, and touchend events.
   </script>
 </body>
 </html>
