@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Strands-Inspired Word Puzzle</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      margin: 20px;
+      user-select: none;
+    }
+    h1 {
+      margin-bottom: 10px;
+    }
+    #message {
+      margin-top: 15px;
+      font-size: 1.2em;
+      color: green;
+      font-weight: bold;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(8, 40px);
+      grid-gap: 5px;
+      margin: 0 auto 20px;
+      width: max-content;
+    }
+    .cell {
+      width: 40px;
+      height: 40px;
+      background: #f0f0f0;
+      border: 1px solid #ccc;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      font-size: 18px;
+      font-weight: bold;
+    }
+    .cell.used {
+      background: #d3d3d3;
+      cursor: default;
+    }
+    .cell.selected {
+      background: #add8e6;
+    }
+    .word-list {
+      list-style: none;
+      padding: 0;
+      max-width: 300px;
+      margin: 0 auto;
+    }
+    .word-list li {
+      background: #eee;
+      border: 1px solid #ccc;
+      padding: 5px;
+      margin-bottom: 3px;
+      font-size: 18px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1>Strands-Inspired Word Puzzle</h1>
+  <div class="grid" id="grid"></div>
+  <ul class="word-list" id="wordList"></ul>
+  <div id="message"></div>
+
+  <script>
+    // Grid dimensions
+    const rows = 6;
+    const cols = 8;
+    
+    // Generate a board of random letters with each cell state.
+    let board = [];
+    const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    for (let r = 0; r < rows; r++) {
+      const rowArr = [];
+      for (let c = 0; c < cols; c++) {
+        // Create a cell object storing letter and used flag
+        const letter = letters.charAt(Math.floor(Math.random() * letters.length));
+        rowArr.push({ letter, used: false });
+      }
+      board.push(rowArr);
+    }
+    
+    const gridEl = document.getElementById("grid");
+    
+    // Render the board grid into the DOM.
+    function renderGrid() {
+      gridEl.innerHTML = "";
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+          const cellData = board[r][c];
+          const cellEl = document.createElement("div");
+          cellEl.classList.add("cell");
+          cellEl.textContent = cellData.letter;
+          cellEl.dataset.row = r;
+          cellEl.dataset.col = c;
+          if (cellData.used) {
+            cellEl.classList.add("used");
+          }
+          gridEl.appendChild(cellEl);
+        }
+      }
+    }
+    
+    renderGrid();
+    
+    // Current word selection state.
+    let isSelecting = false;
+    let currentSelection = [];
+    
+    // Helper: Get cell coordinates from its element.
+    function getCellCoordinates(cellEl) {
+      return {
+        row: parseInt(cellEl.dataset.row),
+        col: parseInt(cellEl.dataset.col)
+      };
+    }
+    
+    // Helper: Check if cellB is adjacent (including diagonals) to cellA.
+    function isAdjacent(cellA, cellB) {
+      const a = getCellCoordinates(cellA);
+      const b = getCellCoordinates(cellB);
+      const rowDiff = Math.abs(a.row - b.row);
+      const colDiff = Math.abs(a.col - b.col);
+      return (rowDiff <= 1 && colDiff <= 1) && !(rowDiff === 0 && colDiff === 0);
+    }
+    
+    // Begins a new selection if clicking on an unused cell.
+    function handleMouseDown(e) {
+      if (!e.target.classList.contains("cell")) return;
+      if (e.target.classList.contains("used")) return;
+      
+      isSelecting = true;
+      currentSelection = [];
+      addCellToSelection(e.target);
+    }
+    
+    // Adds a cell to the current selection, ensuring it’s contiguous.
+    function addCellToSelection(cellEl) {
+      if (currentSelection.indexOf(cellEl) !== -1) return;
+      if (currentSelection.length > 0) {
+        const lastCell = currentSelection[currentSelection.length - 1];
+        if (!isAdjacent(lastCell, cellEl)) return;
+      }
+      cellEl.classList.add("selected");
+      currentSelection.push(cellEl);
+    }
+    
+    // When dragging over cells, add them if they are adjacent.
+    function handleMouseEnter(e) {
+      if (!isSelecting) return;
+      if (!e.target.classList.contains("cell")) return;
+      if (e.target.classList.contains("used")) return;
+      addCellToSelection(e.target);
+    }
+    
+    // Called when the mouse button is released.
+    function finishSelection() {
+      if (currentSelection.length > 0) {
+        // Form the word from the selected letters.
+        const word = currentSelection.map(cell => cell.textContent).join("");
+        // Accept only words of at least 2 letters.
+        if (word.length >= 2) {
+          const wordListEl = document.getElementById("wordList");
+          const li = document.createElement("li");
+          li.textContent = word;
+          wordListEl.appendChild(li);
+          
+          // Mark these cells as used both in the DOM and internal board state.
+          currentSelection.forEach(cellEl => {
+            cellEl.classList.remove("selected");
+            cellEl.classList.add("used");
+            const { row, col } = getCellCoordinates(cellEl);
+            board[row][col].used = true;
+          });
+        } else {
+          // Clear the selection if too short.
+          currentSelection.forEach(cellEl => cellEl.classList.remove("selected"));
+        }
+      }
+      isSelecting = false;
+      currentSelection = [];
+      checkPuzzleComplete();
+    }
+    
+    // Check if every cell has been used. If so, display a victory message.
+    function checkPuzzleComplete() {
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+          if (!board[r][c].used) return;
+        }
+      }
+      document.getElementById("message").textContent = "Congratulations! Puzzle complete!";
+    }
+    
+    // Use event delegation on the grid.
+    gridEl.addEventListener("mousedown", handleMouseDown);
+    gridEl.addEventListener("mouseenter", handleMouseEnter, true);
+    document.addEventListener("mouseup", finishSelection);
+  </script>
+</body>
+</html>
