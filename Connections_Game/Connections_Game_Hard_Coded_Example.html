@@ -106,6 +106,26 @@
       border: 1px solid #ccc;
       cursor: default; /* Indicate that these buttons are not clickable */
     }
+    #shareResultsButton {
+      margin-top: 10px;
+      padding: 8px 15px;
+      background-color: #e7b82a; 
+      border: none;
+      color: white;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    #shareResultsButton:disabled {
+      opacity: 0.5;
+      cursor: default;
+    }
+    #emoji-grid{
+      opacity: 0.0;
+      cursor: default;
+    }
   </style>
 </head>
 <body>
@@ -119,6 +139,8 @@
 </div>
 <button id="hintButton" onclick="showHints()">Show Hints</button>
 <button id="displayGroupNamesButton" onclick="showGroupNames()">Show Group Names</button>
+<button id="shareResultsButton" onclick="copyResults()" disabled>Share Results</button>
+<pre id="emoji-grid"></pre>
 <div id="hintBox">
 </div>
 <div id="groupNamesBox">
@@ -147,11 +169,15 @@
   const wordContainer = document.getElementById("wordContainer");
   const submitButton = document.getElementById("submitButton");
   const shuffleButton = document.getElementById("shuffleButton");
+  const shareResultsButton = document.getElementById("shareResultsButton");
   const attemptsDisplay = document.getElementById("attempts");
   let selectedWords = [];
+  let logSelectedWords = [];
   let attempts = 4;
   let groupsRemaining = 4;
   var currentGroupColor = "";
+  let logSelectedColors = [];
+  let emojiGrid = document.getElementById("emoji-grid");
 
   const foundWordsContainer = document.getElementById("foundWordsContainer");
   var wordsAlreadyFound = []; // Keep track of found words
@@ -290,11 +316,63 @@
     }
   }
 
+  function copyResults(){
+    logSelectedColors = [];
+    logSelectedWords.forEach(tmpWords => {
+      tmpWords.forEach(word => {
+      if(group1.includes(word)){
+        logSelectedColors.push(group1Color);
+      }
+      else if(group2.includes(word)){
+        logSelectedColors.push(group2Color);
+      }
+      else if(group3.includes(word)){
+        logSelectedColors.push(group3Color);
+      }
+      else{
+        logSelectedColors.push(group4Color);
+      }
+      });
+    });
+    createEmojiGrid();
+    let emojiGrid = document.getElementById("emoji-grid").innerText;
+    navigator.clipboard.writeText(emojiGrid).then(() => {
+        alert("Copied results");
+    }).catch(err => {
+        console.error("Error copying text:", err);
+    });
+  }
+
+  function createEmojiGrid(){
+    emojiGrid.innerText = "";
+    let iter = 0;
+    logSelectedColors.forEach(color => {
+      if(iter % 4 === 0 && iter !== 0){
+        emojiGrid.innerText += "\n"
+      }
+
+      if(color === group1Color){
+        emojiGrid.innerText += "🟨";
+      }
+      else if(color === group2Color){
+        emojiGrid.innerText += "🟩";
+      }
+      else if(color === group3Color){
+        emojiGrid.innerText += "🟦";
+      }
+      else{
+        emojiGrid.innerText += "🟪";
+      }
+      iter++;
+    });
+    
+  }
 
   // Initial shuffling of words
   shuffleWords();
 
   submitButton.addEventListener("click", () => {
+    logSelectedWords.push(selectedWords);
     // Check if the selected words form a valid group
     if (isGroupValid(selectedWords)) {
       if(selectedWords.sort().join(',') === group1.sort().join(',')){
@@ -350,6 +428,7 @@
       selectedButtons.forEach(button => button.classList.remove("selected"));
       submitButton.disabled = true;
       shuffleButton.disabled = true;
+      shareResultsButton.disabled = false;
 
       // Make all the words look like they've been found
       wordsAlreadyFound = words;
@@ -362,6 +441,7 @@
       selectedButtons.forEach(button => button.classList.remove("selected"));
       submitButton.disabled = true;
       shuffleButton.disabled = true;
+      shareResultsButton.disabled = false;
     }
     else {
       selectedWords = []; // Clear selected words
