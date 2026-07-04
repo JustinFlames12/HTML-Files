@@ -921,6 +921,16 @@
   shuffleWords();
 
   submitButton.addEventListener("click", () => {
+    // Check if this exact guess has already been made (order-independent)
+    const sortedCurrent = selectedWords.slice().sort().join(',');
+    const isDuplicate = logSelectedWords.some(function(prev) {
+      return prev.slice().sort().join(',') === sortedCurrent;
+    });
+    if (isDuplicate) {
+      alert("Already Guessed! Try a different combination.");
+      return;
+    }
+
     logSelectedWords.push(selectedWords);
     // Check if the selected words form a valid group
     if (isGroupValid(selectedWords)) {
