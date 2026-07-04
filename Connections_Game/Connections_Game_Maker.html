@@ -577,6 +577,44 @@
       opacity: 0.0;
       cursor: default;
     }
+    #pastGuessesContainer {
+      margin-top: 20px;
+    }
+    #pastGuessesContainer h3 {
+      margin-bottom: 8px;
+      font-size: 1rem;
+    }
+    .past-guess-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 6px;
+    }
+    .past-guess-label {
+      font-size: 0.8rem;
+      color: #666;
+      min-width: 56px;
+    }
+    .past-guess-chip {
+      padding: 6px 10px;
+      border-radius: 4px;
+      font-size: 0.85rem;
+      font-weight: bold;
+      color: #fff;
+      border: none;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+    }
+    .past-guess-chip.incorrect {
+      background-color: #9e9e9e;
+      color: #fff;
+    }
+    .past-guess-badge {
+      font-size: 0.75rem;
+      font-weight: bold;
+      margin-left: 4px;
+    }
+    .past-guess-badge.correct { color: #4CAF50; }
+    .past-guess-badge.incorrect { color: #e53935; }
   </style>
 </head>
 <body>
@@ -592,6 +630,9 @@
 <button id="displayGroupNamesButton" onclick="showGroupNames()">Show Group Names</button>
 <button id="shareResultsButton" onclick="copyResults()" disabled>Share Results</button>
 <pre id="emoji-grid"></pre>
+<div id="pastGuessesContainer">
+  <h3>Past Guesses</h3>
+</div>
 <div id="hintBox">
 </div>
 <div id="groupNamesBox">
@@ -634,6 +675,64 @@
   var wordsLeft = [];
   var currentWordOrder = [];
   var currentConnectionGroupName = "";
+
+  // Function to determine which group color a word belongs to (or gray if none)
+  function getWordColor(word) {
+    if (group1.includes(word)) return group1Color;
+    if (group2.includes(word)) return group2Color;
+    if (group3.includes(word)) return group3Color;
+    if (group4.includes(word)) return group4Color;
+    return "#9e9e9e";
+  }
+
+  // Function to check if a guess was a correct group
+  function wasCorrectGuess(guessWords) {
+    return [group1, group2, group3, group4].some(group =>
+      guessWords.length === 4 && guessWords.every(w => group.includes(w))
+    );
+  }
+
+  // Function to update the past guesses display
+  function updatePastGuessesDisplay() {
+    const container = document.getElementById("pastGuessesContainer");
+    container.innerHTML = "<h3>Past Guesses</h3>";
+
+    logSelectedWords.forEach(function(guess, index) {
+      const correct = wasCorrectGuess(guess);
+      const rowDiv = document.createElement("div");
+      rowDiv.classList.add("past-guess-row");
+
+      const label = document.createElement("span");
+      label.classList.add("past-guess-label");
+      label.textContent = "Guess " + (index + 1) + ":";
+      rowDiv.appendChild(label);
+
+      guess.forEach(function(word) {
+        const chip = document.createElement("span");
+        chip.classList.add("past-guess-chip");
+        chip.textContent = word;
+        if (correct) {
+          chip.style.backgroundColor = getWordColor(word);
+        } else {
+          chip.classList.add("incorrect");
+        }
+        rowDiv.appendChild(chip);
+      });
+
+      const badge = document.createElement("span");
+      badge.classList.add("past-guess-badge");
+      if (correct) {
+        badge.classList.add("correct");
+        badge.textContent = "✓ Correct";
+      } else {
+        badge.classList.add("incorrect");
+        badge.textContent = "✗ Wrong";
+      }
+      rowDiv.appendChild(badge);
+
+      container.appendChild(rowDiv);
+    });
+  }
 
   // Function to update the display of found words
   function updateFoundWordsDisplay() {
@@ -855,6 +954,7 @@
 
       // Update the display of found words
       updateFoundWordsDisplay();
+      updatePastGuessesDisplay();
       shuffleWords(shuffle=false);
 
     } else {
@@ -867,6 +967,7 @@
       else{
         alert("Incorrect group. Attempts remaining: " + attempts);
       }
+      updatePastGuessesDisplay();
     }
 
     // Reset for next turn or end game
@@ -883,6 +984,7 @@
       // Make all the words look like they've been found
       wordsAlreadyFound = words;
       updateFoundWordsDisplay();
+      updatePastGuessesDisplay();
     } 
     else if(groupsRemaining === 0){
       alert("Congratulations. You won.");
